@@ -1,20 +1,21 @@
 package com.ufersa.ed2praticaoffline3.servidor.servidores;
 
-import com.ufersa.ed2praticaoffline3.model.Protocolos.AutomovelResponse;
+import com.ufersa.ed2praticaoffline3.huffman.Huffman;
+import com.ufersa.ed2praticaoffline3.huffman.HuffmanNode;
+import com.ufersa.ed2praticaoffline3.huffman.UtilsHuffman;
 import com.ufersa.ed2praticaoffline3.model.entities.Automovel;
 import com.ufersa.ed2praticaoffline3.model.hashTable.HashTableEncadExt;
 import com.ufersa.ed2praticaoffline3.servidor.interfaces.IConcessioanariaServidor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ConcessionariaServidor implements IConcessioanariaServidor {
 
     private static final int CAPACITY = 250;
     private int repetido;
+    private HuffmanNode raizAtual;
     private HashTableEncadExt<String, Automovel> hashTable;
 
     public ConcessionariaServidor() throws IOException {
@@ -22,7 +23,10 @@ public class ConcessionariaServidor implements IConcessioanariaServidor {
         repetido = 0;
     }
 
-    public int addAutomovel(Automovel automovel) {
+    public int addAutomovel(String automovelStringComprimido) {
+
+        var automovel = UtilsHuffman.converterEmAutomovel(raizAtual, automovelStringComprimido);
+
         var renavam = automovel.getRenavam();
         if(hashTable.containsKey(renavam)){
             System.out.println("REPETIDO!");
@@ -32,29 +36,56 @@ public class ConcessionariaServidor implements IConcessioanariaServidor {
         return repetido;
     }
 
-    public String removerAutomovel(String chave) {
-        if(!hashTable.containsKey(chave)){
+    public String removerAutomovel(String chaveComprimida) {
+        var chaveDescomprimida = Huffman.descomprimirMensagem(getRaiz(), chaveComprimida);
+        if(!hashTable.containsKey(chaveDescomprimida)){
             return "Chave não existe";
         }
 
-        hashTable.remove(chave);
+        hashTable.remove(chaveDescomprimida);
         //add log
         return "Automóvel removido!";
     }
 
 
-    public List<AutomovelResponse> buscarTodos() {
-        List<AutomovelResponse> list = new ArrayList<>();
+    public String buscarTodos() {
+        StringBuilder sb = new StringBuilder();
         for(var obj : hashTable.entrySet()){
             if(obj != null){
-                list.add(new AutomovelResponse(obj.getKey(),obj.getValue()));
+                sb.append(obj.getValue().toStringCompressao());
             }
         }
-        return list;
+        var respostaCompressao = UtilsHuffman.comprimir(sb.toString());
+        var todosAutomoveisComprimidos = respostaCompressao.getMensagemComprimida();
+        setRaiz(respostaCompressao.getRaiz());
+        return todosAutomoveisComprimidos;
     }
 
 
-    public Automovel buscarPorChave(String chave) {
-        return hashTable.get(chave);
+    public String buscarPorChave(String chaveComprimida) {
+        var chaveDescomprimida = Huffman.descomprimirMensagem(getRaiz(),chaveComprimida);
+        var automovel = hashTable.get(chaveDescomprimida);
+        var automovelComprimido = comprimir(automovel);
+        return automovelComprimido;
+    }
+
+    public void setRaiz(HuffmanNode raiz) {
+        raizAtual = raiz;
+    }
+
+    public HuffmanNode getRaiz() {
+        return raizAtual;
+    }
+
+    public String editar(String automovelStringComprimido, String chaveComprimida) {
+        var chaveDescomprimida = Huffman.descomprimirMensagem(getRaiz(),chaveComprimida);
+        var automovel = hashTable.get(chaveDescomprimida);
+        return null;
+    }
+
+    private String comprimir(Automovel automovel){
+        var respostaCompressao = UtilsHuffman.comprimir(automovel);
+        setRaiz(respostaCompressao.getRaiz());
+        return respostaCompressao.getMensagemComprimida();
     }
 }

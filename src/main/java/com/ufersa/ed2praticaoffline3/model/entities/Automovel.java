@@ -59,4 +59,8 @@ public class Automovel {
                 ", condutor=" + condutor +
                 '}';
     }
+
+    public String toStringCompressao() {
+        return String.format("%s;%s;%s;%s;%s;%s;",placa,renavam,modelo,dataFabricacao,condutor.getNome(),condutor.getCpf());
+    }
 }

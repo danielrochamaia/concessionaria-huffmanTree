@@ -1,5 +1,6 @@
 package com.ufersa.ed2praticaoffline3.client.services;
 
+import com.ufersa.ed2praticaoffline3.huffman.UtilsHuffman;
 import com.ufersa.ed2praticaoffline3.model.Protocolos.AutomovelResponse;
 import com.ufersa.ed2praticaoffline3.model.entities.Automovel;
 import com.ufersa.ed2praticaoffline3.model.entities.Condutor;
@@ -25,28 +26,37 @@ public class ConcessionariaClient implements IConcessionariaClient {
         for(int i = 0; i <= automovelProtocolos.size()-1;i++){
             var automovel = new Automovel();
             automovel = setDados(automovel, automovelProtocolos.get(i));
-            repetidos = concessioanariaServidor.addAutomovel(automovel);
+
+            var automovelComprimido = comprimir(automovel);
+
+            repetidos = concessioanariaServidor.addAutomovel(automovelComprimido);
         }
         return automovelProtocolos.size() - repetidos + " automóveis adicionados!";
     }
 
     public String editarAutomovel(AutomovelProtocolo automovelProtocolo, String chave) {
-        var obj = concessioanariaServidor.buscarPorChave(chave);
-        setDados(obj, automovelProtocolo);
-        return obj.toString();
+        deletarAutomovel(chave);
+        var automovel = new Automovel();
+        automovel = setDados(automovel, automovelProtocolo);
+        var automovelComprimido = comprimir(automovel);
+        concessioanariaServidor.addAutomovel(automovelComprimido);
+        return "Editado com sucesso!";
     }
 
-    public List<AutomovelResponse> buscarAutomoveis() {
-        return concessioanariaServidor.buscarTodos();
+    public List<Automovel> buscarAutomoveis() {
+        var automoveisComprimidos = concessioanariaServidor.buscarTodos();
+        var automoveisObjetos = UtilsHuffman.converterEmListaAutomovel(concessioanariaServidor.getRaiz(), automoveisComprimidos);
+        return automoveisObjetos;
     }
 
     public AutomovelResponse buscarAutomovel(String chave) {
-        var automovel = concessioanariaServidor.buscarPorChave(chave);
-        return new AutomovelResponse(chave, automovel);
+        var automovelDescomprimido = buscarAutomovelDescomprimido(chave);
+        return new AutomovelResponse(chave, automovelDescomprimido);
     }
 
     public String deletarAutomovel(String chave) {
-        return concessioanariaServidor.removerAutomovel(chave);
+        var chaveComprimida = comprimir(chave);
+        return concessioanariaServidor.removerAutomovel(chaveComprimida);
     }
 
     private Automovel setDados(Automovel automovel, AutomovelProtocolo automovelProtocolo){
@@ -56,5 +66,24 @@ public class ConcessionariaClient implements IConcessionariaClient {
         automovel.setPlaca(automovelProtocolo.placa);
         automovel.setDataFabricacao(automovelProtocolo.dataFabricacao);
         return automovel;
+    }
+
+    private String comprimir(String mensagem){
+        var respostaCompressao = UtilsHuffman.comprimir(mensagem);
+        concessioanariaServidor.setRaiz(respostaCompressao.getRaiz());
+        return respostaCompressao.getMensagemComprimida();
+    }
+
+    private String comprimir(Automovel automovel){
+        var respostaCompressao = UtilsHuffman.comprimir(automovel);
+        concessioanariaServidor.setRaiz(respostaCompressao.getRaiz());
+        return respostaCompressao.getMensagemComprimida();
+    }
+
+    private Automovel buscarAutomovelDescomprimido(String chave){
+        var stringComprimida = comprimir(chave);
+        var automovelComprimido = concessioanariaServidor.buscarPorChave(stringComprimida);
+        var automovelDescomprimido = UtilsHuffman.converterEmAutomovel(concessioanariaServidor.getRaiz(), automovelComprimido);
+        return  automovelDescomprimido;
     }
 }

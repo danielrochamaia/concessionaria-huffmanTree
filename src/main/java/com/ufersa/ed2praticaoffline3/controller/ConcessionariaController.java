@@ -1,5 +1,6 @@
 package com.ufersa.ed2praticaoffline3.controller;
 import com.ufersa.ed2praticaoffline3.model.Protocolos.AutomovelResponse;
+import com.ufersa.ed2praticaoffline3.model.entities.Automovel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class ConcessionariaController {
     }
 
     @GetMapping("/automovel")
-    public ResponseEntity<List<AutomovelResponse>> BuscarAutomoveis() {
+    public ResponseEntity<List<Automovel>> BuscarAutomoveis() {
         var response = concessionariaClient.buscarAutomoveis();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
