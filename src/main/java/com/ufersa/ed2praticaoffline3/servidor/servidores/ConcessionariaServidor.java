@@ -13,7 +13,7 @@ import java.io.IOException;
 @Service
 public class ConcessionariaServidor implements IConcessioanariaServidor {
 
-    private static final int CAPACITY = 250;
+    private static final int CAPACITY = 85;
     private int repetido;
     private HuffmanNode raizAtual;
     private HashTableEncadExt<String, Automovel> hashTable;
