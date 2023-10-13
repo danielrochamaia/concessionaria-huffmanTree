@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 public class Huffman {
+
     private static HuffmanNode buildHuffmanTree(Map<Character, Integer> frequencies) {
-        PriorityQueue<HuffmanNode> minHeap = new PriorityQueue<>();
+        //PriorityQueue<HuffmanNode> minHeap = new PriorityQueue<>();
+        MinHeap<HuffmanNode> minHeap = new MinHeap<>();
 
         for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
             minHeap.add(new HuffmanNode(entry.getKey(), entry.getValue()));
