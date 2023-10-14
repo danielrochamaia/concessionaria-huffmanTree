@@ -14,6 +14,11 @@ public class HashTableEncadExt<K, V> {
         size = 0;
     }
 
+    public HashTableEncadExt() {
+        table = new LinkedList[85];
+        size = 0;
+    }
+
     public void put(K key, V value) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null");

@@ -1,16 +1,13 @@
 package com.ufersa.ed2praticaoffline3.huffman;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
+import com.ufersa.ed2praticaoffline3.model.hashTable.HashTableEncadExt;
 
 public class Huffman {
 
-    private static HuffmanNode buildHuffmanTree(Map<Character, Integer> frequencies) {
-        //PriorityQueue<HuffmanNode> minHeap = new PriorityQueue<>();
+    private static HuffmanNode buildHuffmanTree(HashTableEncadExt<Character, Integer> frequencies) {
         MinHeap<HuffmanNode> minHeap = new MinHeap<>();
 
-        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
+        for (var entry : frequencies.entrySet()) {
             minHeap.add(new HuffmanNode(entry.getKey(), entry.getValue()));
         }
 
@@ -29,7 +26,7 @@ public class Huffman {
     }
 
     private static String encodeMessage(HuffmanNode root, String message) {
-        Map<Character, String> huffmanCodes = new HashMap<>();
+        HashTableEncadExt<Character, String> huffmanCodes = new HashTableEncadExt<>();
         buildHuffmanCodes(root, "", huffmanCodes);
 
         StringBuilder encodedMessage = new StringBuilder();
@@ -40,7 +37,7 @@ public class Huffman {
         return encodedMessage.toString();
     }
 
-    private static void buildHuffmanCodes(HuffmanNode root, String code, Map<Character, String> huffmanCodes) {
+    private static void buildHuffmanCodes(HuffmanNode root, String code, HashTableEncadExt<Character, String> huffmanCodes) {
         if (root == null) {
             return;
         }
@@ -73,11 +70,16 @@ public class Huffman {
         return decodedMessage.toString();
     }
 
-    private static Map<Character, Integer> getFrequencias(String mensagem){
-        Map<Character, Integer> frequencies = new HashMap<>();
+    private static HashTableEncadExt<Character, Integer> getFrequencias(String mensagem){
+        HashTableEncadExt<Character, Integer> frequencies = new HashTableEncadExt<>();
 
         for (char c : mensagem.toCharArray()) {
-            frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
+            var getOrDefault = frequencies.get(c);
+            if(getOrDefault == null){
+                getOrDefault = 0;
+            }
+
+            frequencies.put(c, getOrDefault + 1);
         }
 
         return frequencies;
